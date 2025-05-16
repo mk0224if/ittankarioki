@@ -1,0 +1,112 @@
+var canvas = document.getElementById("bg");
+        var cnt = canvas.getContext("2d");
+        cnt.font = "36px monospace";
+        cnt.textAlign = "center";
+        cnt.textBaseline = "middle";
+
+        //マウスとタップの判定
+        var tapX = 0,
+            tapY = 0,
+            tapC = 0;
+
+        if ('ontouchend' in document) {
+            canvas.addEventListener("touchstart", touchStart);
+            canvas.addEventListener("touchend", touchEnd);
+
+            function touchStart(event) {
+                event.preventDefault();
+                var rect = event.target.getBoundingClientRect();
+                tapX = Math.floor(event.touches[0].clientX - rect.left);
+                tapY = Math.floor(event.touches[0].clientY - rect.top);
+                tapC = 1;
+            }
+
+            function touchEnd(event) {
+                event.preventDefault();
+                tapC = 0;
+            }
+        } else {
+            canvas.addEventListener("mousedown", mouseDown);
+            canvas.addEventListener("mouseup", mouseUp);
+
+            function mouseDown(event) {
+                var rect = event.target.getBoundingClientRect();
+                tapX = event.clientX - rect.left;
+                tapY = event.clientY - rect.top;
+                tapC = 1;
+            }
+
+            function mouseUp(event) {
+                tapC = 0;
+            }
+        }
+
+        //描画用の関数
+        function fText(str, x, y, col) { //文字表示
+            cnt.fillStyle = col;
+            cnt.fillText(str, x, y);
+        }
+
+        function fRect(x, y, w, h, col) { //矩形
+            cnt.fillStyle = col;
+            cnt.fillRect(x, y, w, h);
+        }
+
+        //以下がメイン処理
+        var idx = 0;
+        var tmr = 0;
+
+        window.onload = indexProc();
+
+        function indexProc() {
+            tmr++;
+            fRect(0, 0, 800, 600, "#000");
+            fText("インデックス:" + idx, 200, 25, "#ff0");
+            fText("タイマー:" + tmr, 600, 25, "#0ff");
+            fText("tapX=" + tapX + " tapY=" + tapY + " tapC=" + tapC, 400, 575, "#fff");
+
+            switch (idx) {
+                case 0:
+                    fRect(100, 100, 600, 200, "#cf8");
+                    fText("タイトル画面", 400, 200, "#000");
+                    fText("画面をタップしてスタート", 400, 400, "#fff");
+                    if (tapC == 1) {
+                        idx = 1;
+                        tmr = 0;
+                        tapC = 0;
+                    }
+                    break;
+
+                case 1:
+                    fText("ゲーム画面", 400, 100, "#8f8");
+                    fRect(100, 200, 200, 300, "#0ff");
+                    fText("目標達成", 200, 350, "#000");
+                    fRect(500, 200, 200, 300, "#ff0");
+                    fText("失敗", 600, 350, "#000");
+                    if (tapC == 1) {
+                        if (100 & lt; = tapX & amp; & amp; tapX & lt; 300 & amp; & amp; 200 & lt; = tapY & amp; & amp; tapY & lt; 500) {
+                            idx = 2;
+                            tmr = 0;
+                        }
+                        if (500 & lt; = tapX & amp; & amp; tapX & lt; 700 & amp; & amp; 200 & lt; = tapY & amp; & amp; tapY & lt; 500) {
+                            idx = 3;
+                            tmr = 0;
+                        }
+                    }
+                    break;
+
+                case 2:
+                    fRect(400 - tmr * 3, 300 - tmr, tmr * 6, tmr * 2, "#48f");
+                    fText("ゲームクリア", 400, 300, "#000");
+                    if (tmr == 100) idx = 0;
+                    break;
+
+                case 3:
+                    fRect(100 + tmr * 3, 200 + tmr, 600 - tmr * 6, 200 - tmr * 2, "#f0c");
+                    fText("ゲームオーバー", 400, 300, "#000");
+                    if (tmr == 100) idx = 0;
+                    break;
+            }
+
+            setTimeout(indexProc, 100);
+        }
